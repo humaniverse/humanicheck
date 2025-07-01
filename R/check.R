@@ -12,6 +12,7 @@
 #' @return The function does not return a value. It prints a formatted report
 #'   directly to the console.
 #'
+#' @autoglobal
 #' @export
 #'
 #' @examples
