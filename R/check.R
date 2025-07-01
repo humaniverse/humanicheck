@@ -1,3 +1,23 @@
+#' Generate a Data Quality Report
+#'
+#' @description
+#' This function performs a series of checks on a data frame or tibble and
+#' prints a summary report to the console. The checks include verifying if the
+#' input is a tibble, checking the object's memory size, identifying
+#' duplicated rows, locating NA values, and for `sf` objects, ensuring
+#' geometry type consistency.
+#'
+#' @param data The input data frame, tibble, or sf object to be checked.
+#'
+#' @return The function does not return a value. It prints a formatted report
+#'   directly to the console.
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' humanicheck(penguins)
+#' }
 humanicheck <- function(data) {
   cat("--- Data Quality Report ---\n")
 
