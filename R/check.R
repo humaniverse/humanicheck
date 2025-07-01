@@ -13,6 +13,7 @@
 #'   directly to the console.
 #'
 #' @autoglobal
+#' @importFrom scales label_bytes
 #' @export
 #'
 #' @examples
