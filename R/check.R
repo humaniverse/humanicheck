@@ -21,97 +21,75 @@
 #' humanicheck(penguins)
 #' }
 humanicheck <- function(data) {
-  cat("--- Data Quality Report ---\n")
+  cli::cli_h1("Data Quality Report")
 
-  cat("1. Tibble Check\n")
+  cli::cli_h2("1. Tibble Check")
   if (!tibble::is_tibble(data)) {
-    cat("❗️Input is not a tibble. Consider using `tibble::as_tibble()`.\n")
+    cli::cli_alert_danger(
+      "Input is not a tibble. Consider using `tibble::as_tibble()`."
+    )
   } else {
-    cat("✅ Data is a tibble.\n")
+    cli::cli_alert_success("Data is a tibble.")
   }
 
-  cat("---\n")
-
-  cat("2. Object Size Check\n")
+  cli::cli_h2("2. Object Size Check")
   obj_s_numeric <- lobstr::obj_size(data) |>
     as.numeric()
 
   if (obj_s_numeric > 5e7) {
-    cat(
-      stringr::str_glue(
-        "❗️Object size ({scales::label_bytes()(obj_s_numeric)}) exceeds GitHub's 50MB warning limit.\n"
-      )
+    cli::cli_alert_danger(
+      "Object size ({scales::label_bytes()(obj_s_numeric)}) exceeds GitHub's 50MB warning limit."
     )
   } else {
-    cat(
-      stringr::str_glue(
-        "✅ Object size ({scales::label_bytes()(obj_s_numeric)}) is within a reasonable limit.\n"
-      )
+    cli::cli_alert_success(
+      "Object size ({scales::label_bytes()(obj_s_numeric)}) is within a reasonable limit."
     )
   }
 
-  cat("\n---\n")
-
-  cat("3. Duplicated Rows Check\n")
+  cli::cli_h2("3. Duplicated Rows Check")
   if (any(duplicated(data))) {
-    cat("❗️Found duplicated rows:\n")
+    cli::cli_alert_danger("Found duplicated rows:")
     data |>
       dplyr::mutate(
         .row_number = dplyr::row_number()
       ) |>
       dplyr::filter(duplicated(data) | duplicated(data, fromLast = TRUE)) |>
       print()
-    cat("\n")
   } else {
-    cat("✅ No duplicate rows found.\n")
+    cli::cli_alert_success("No duplicate rows found.")
   }
 
-  cat("---\n")
-
-  cat("4. NA Value Check\n")
+  cli::cli_h2("4. NA Value Check")
   na_locations <- which(is.na(data), arr.ind = TRUE) |>
     tibble::as_tibble() |>
-    dplyr::mutate(
-      column = names(data)[col]
-    ) |>
-    dplyr::select(
-      row,
-      column
-    )
+    dplyr::mutate(column = names(data)[col]) |>
+    dplyr::select(row, column)
 
   if (nrow(na_locations) > 0) {
-    cat("❗️Found NA values at these locations:\n")
-    print(na_locations, n = Inf)
-    cat("\n")
+    cli::cli_alert_danger("Found NA values at these locations:")
+    print(na_locations)
   } else {
-    cat("✅ No NA values found.\n")
+    cli::cli_alert_success("No NA values found.")
   }
 
-  cat("---\n")
-
-  cat("5. SF Geometry Check\n")
+  cli::cli_h2("5. SF Geometry Check")
   if (!inherits(data, "sf")) {
-    cat("✅ Skipping SF checks (not an sf object).\n")
+    cli::cli_alert_info("Skipping SF checks (not an sf object).")
   } else {
     geom_types <- sf::st_geometry_type(data) |>
       unique()
 
     if (length(geom_types) > 1) {
-      cat(
-        stringr::str_glue(
-          "❗️Multiple geometry types found: {paste(geom_types, collapse = ', ')}.\n"
-        )
+      cli::cli_alert_danger(
+        "Multiple geometry types found: {paste(geom_types, collapse = ', ')}."
       )
     } else if (length(geom_types) == 0) {
-      cat("✅ Data contains no geometries.\n")
+      cli::cli_alert_success("Data contains no geometries.")
     } else {
-      cat(
-        stringr::str_glue(
-          "✅ All features share a single geometry type: {geom_types}.\n"
-        )
+      cli::cli_alert_success(
+        "All features share a single geometry type: {geom_types}."
       )
     }
   }
-
-  cat("\n--- End of Report ---\n")
+  cli::cli_h1("End of Report")
 }
